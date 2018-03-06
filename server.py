@@ -1,6 +1,5 @@
 # coding: utf-8
 import os
-import re
 import traceback
 import subprocess
 from threading import Timer
@@ -17,18 +16,24 @@ class HttpError(Exception):
 def get_scripts_list(path):
     return os.listdir(path)
 
-
 def execute_script(path):
-    print '!!!', path
     p = subprocess.Popen(path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    timer = Timer(10, p.kill, [p])
+    timeout = {'value': False}
+
+    def on_timeout():
+        p.kill()
+        timeout['value'] = True
+
+    timer = Timer(10, on_timeout, [])
     try:
         timer.start()
         stdout, stderr = p.communicate()
     finally:
         timer.cancel()
-    message = '\n'.join(filter(None, [stdout, stderr]))
-    return {'success': p.returncode == 0, 'message': repr(message)}
+    if timeout['value']:
+        return {'success': False, 'message': 'Timeout'}
+    message = '\n'.join(filter(None, [stdout.strip(), stderr.strip()]))
+    return {'success': p.returncode == 0, 'message': repr(message) if message else ''}
 
 
 def execute_script_or_dir(path, name):
@@ -60,8 +65,10 @@ def application(environ, start_response):
             raise HttpError(STATUS_NOT_FOUND)
         result = execute_script_or_dir(scripts_dir, script_name)
         start_response('200 OK', [])
-        message = 'CHECK PASSED' if result['success'] else 'CHECK FAILED'
-        message += '\n' + result['message']
+        message = result['message']
+        if message:
+            message = '\n' + message
+        message = ('CHECK PASSED' if result['success'] else 'CHECK FAILED') + message + '\n'
         return [message]
     except HttpError as e:
         start_response(e.status, [])
