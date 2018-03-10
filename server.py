@@ -16,6 +16,7 @@ class HttpError(Exception):
 def get_scripts_list(path):
     return os.listdir(path)
 
+
 def execute_script(path):
     p = subprocess.Popen(path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     timeout = {'value': False}
