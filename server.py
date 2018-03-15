@@ -65,11 +65,14 @@ def application(environ, start_response):
         if script_name not in get_scripts_list(scripts_dir):
             raise HttpError(STATUS_NOT_FOUND)
         result = execute_script_or_dir(scripts_dir, script_name)
-        start_response('200 OK', [])
         message = result['message']
         if message:
             message = '\n' + message
         message = ('CHECK PASSED' if result['success'] else 'CHECK FAILED') + message + '\n'
+        if result['success']:
+            start_response('200 OK', [])
+        else:
+            start_response('500 Internal Server Error', [])
         return [message]
     except HttpError as e:
         start_response(e.status, [])
