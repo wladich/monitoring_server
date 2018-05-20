@@ -107,7 +107,7 @@ class Application(object):
                 self.log('INFO', 'Unknown script', script_name=script_name)
                 raise HttpError(STATUS_NOT_FOUND)
             result = self.execute_script_or_dir(script_name)
-            self.log('INFO', 'Script executed', result=result)
+            self.log('INFO', 'Script executed', result=result, script_name=script_name)
             message = result['message']
             if message:
                 message = '\n' + message
