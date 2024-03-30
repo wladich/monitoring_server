@@ -72,7 +72,7 @@ class Application(object):
             timer.cancel()
         if timeout['value']:
             return {'success': False, 'message': 'Timeout'}
-        message = '\n'.join(filter(None, [stdout.strip(), stderr.strip()]))
+        message = '\n'.join(filter(None, [stdout.strip().decode('utf-8'), stderr.strip().decode('utf-8')]))
         return {'success': p.returncode == 0, 'message': repr(message) if message else ''}
 
     def execute_script_or_dir(self, name):
