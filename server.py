@@ -116,15 +116,15 @@ class Application(object):
                 self._start_response('200 OK', [])
             else:
                 self._start_response('500 Internal Server Error', [])
-            return [message]
+            return [message.encode('utf-8')]
         except HttpError as e:
             self.log('DEBUG', 'Returning http error', status=e.status)
             self._start_response(e.status, [])
-            return [e.message]
+            return [e.message.encode('utf-8')]
         except:
             log.exception('Unhandled exception')
             self._start_response('500 Internal server error', [])
-            return [traceback.format_exc()]
+            return [traceback.format_exc().encode('utf-8')]
 
 
 def application(environ, start_response):
