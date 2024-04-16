@@ -64,7 +64,7 @@ class Application(object):
             p.kill()
             timeout['value'] = True
 
-        timer = Timer(10, on_timeout, [])
+        timer = Timer(20, on_timeout, [])
         try:
             timer.start()
             stdout, stderr = p.communicate()
